@@ -1,0 +1,4 @@
+.vercel
+node_modules
+dist
+youtube-downloader-backend/node_modules
