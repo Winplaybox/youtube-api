@@ -2,11 +2,12 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-  mode: 'development', // Add this line
+  mode: process.env.NODE_ENV || 'development',
   entry: './src/index.tsx',
   output: {
-    filename: 'bundle.js',
+    filename: '[name].[contenthash].js',
     path: path.resolve(__dirname, 'dist'),
+    clean: true,
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.js'],
@@ -17,6 +18,14 @@ module.exports = {
         test: /\.tsx?$/,
         use: 'ts-loader',
         exclude: /node_modules/,
+      },
+      {
+        test: /\.css$/, // Add support for CSS files
+        use: ['style-loader', 'css-loader'],
+      },
+      {
+        test: /\.(png|svg|jpg|jpeg|gif)$/i, // Add support for image files
+        type: 'asset/resource',
       },
     ],
   },
@@ -31,5 +40,11 @@ module.exports = {
     },
     compress: true,
     port: 9000,
+    historyApiFallback: true,
+  },
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+    },
   },
 };

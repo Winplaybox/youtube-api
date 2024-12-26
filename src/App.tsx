@@ -14,16 +14,29 @@ const App: React.FC = () => {
     setLoading(true);
     setError('');
     try {
-      const response = await axios.post('/api/youtube-download', { url });
-      const { formats } = response.data;
-      console.log(formats)
-      setFormats(formats);
+      const formdata = new FormData();
+      formdata.append("url", url);
+  
+      const requestOptions = {
+        method: "POST",
+        body: formdata,
+      };
+      const response = await fetch(`https://my-express-api-gamma.vercel.app/yt?url=${url}`);
+      const result = await response.json();
+      console.log(result)
+      setFormats(result);
     } catch (err) {
       setError('Failed to fetch formats. Please check the URL and try again.');
     } finally {
       setLoading(false);
     }
   };
+
+  const initialLoad=async()=>{
+    const response = await fetch("https://my-express-api-gamma.vercel.app");
+      const result = await response.json();
+      console.log(result)
+  }
 
   const handleDownload = () => {
     const format = formats.find(f => f.format_id === selectedFormat);
@@ -40,6 +53,9 @@ const App: React.FC = () => {
   return (
     <div>
       <h1>YouTube Downloader</h1>
+      <button onClick={initialLoad} >
+      Fetch
+      </button>
       <input
         type="text"
         placeholder="Enter YouTube URL"
@@ -50,29 +66,6 @@ const App: React.FC = () => {
         {loading ? 'Fetching formats...' : 'Fetch Formats'}
       </button>
       {error && <p style={{ color: 'red' }}>{error}</p>}
-      {formats.length > 0 && (
-        <div>
-          <h2>Select Format</h2>
-          <select onChange={(e) => setSelectedFormat(e.target.value)} value={selectedFormat}>
-            <option value="">Select a format</option>
-            {formats.map((format) => (
-              <option key={format.format_id} 
-              value={format.format_id} 
-              data-download={`${format.format_note}.${format.ext}`}
-              data-quality={format.format_note}
-              data-type={format.ext}
-              data-href={format.url}
-              data-title={`format: ${format.format_note}`}>
-                format: {format.format_note}.{format.ext} - {format.filesize ? (format.filesize / 1024 / 1024).toFixed(2) + ' MB' : 'Unknown size'}
-              </option>
-            ))}
-          </select>
-          <button onClick={handleDownload} disabled={!selectedFormat}>
-            Download
-          </button>
-        </div>
-      )}
-
       <Analytics />
       <SpeedInsights />
     </div>
